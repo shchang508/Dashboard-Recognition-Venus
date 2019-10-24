@@ -35,8 +35,10 @@ def get_reult():
     return num_data
 
 # train model
-samples = np.loadtxt('samples.data', np.float32)
-responses = np.loadtxt('responses.data', np.float32)
+samples = np.loadtxt('./KNN/samples.data', np.float32)
+responses = np.loadtxt('./KNN/responses.data', np.float32)
+print('Sample path:', os.path.abspath('./KNN/samples.data'))
+print('Respons path:', os.path.abspath('./KNN/response.data'))
 responses = responses.reshape((responses.size, 1))
 
 model = cv2.ml.KNearest_create()
@@ -44,7 +46,7 @@ model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 
 # read image
 img_src = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
-# img_src = cv2.imread('D:/Dashboard-Recognition-Venus/Schedule1_Original_20191018142834/cf-1_67.png', cv2.IMREAD_GRAYSCALE)
+# img_src = cv2.imread('D:/Dashboard-Recognition-Venus/Schedule1_Original_20191018140458/cf-1_78.png', cv2.IMREAD_GRAYSCALE)
 #img_src = img_src[350:950, 300:1700]
 #print(img_src.shape)
 img_mean = np.mean(img_src)
