@@ -1,9 +1,9 @@
 import cv2, os
 import shutil
 import numpy as np
-import time
 from PIL import Image, ImageChops
 from time import sleep
+import sys
 
 # set recognized area
 '''x_min1 = 600
@@ -19,7 +19,7 @@ y_max2 = 800'''
 def trim(im):
     bg = Image.new(im.mode, im.size, im.getpixel((0,0)))
     diff = ImageChops.difference(im, bg)
-    diff = ImageChops.add(diff, diff, 2.0, -100)
+    diff = ImageChops.add(diff, diff, 4.0, -100)
     bbox = diff.getbbox()
     if bbox:
         return im.crop(bbox)
@@ -30,6 +30,10 @@ def get_contour_precedence(contour, cols):
     origin = cv2.boundingRect(contour)
     return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
+# return result
+def get_reult():
+    return num_data
+
 # train model
 samples = np.loadtxt('samples.data', np.float32)
 responses = np.loadtxt('responses.data', np.float32)
@@ -39,7 +43,8 @@ model = cv2.ml.KNearest_create()
 model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 
 # read image
-img_src = cv2.imread('D:/Dashboard-Recognition-Venus/Schedule1_Original_20191018140458/cf-1_65.png', cv2.IMREAD_GRAYSCALE)
+img_src = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
+# img_src = cv2.imread('D:/Dashboard-Recognition-Venus/Schedule1_Original_20191018142834/cf-1_67.png', cv2.IMREAD_GRAYSCALE)
 #img_src = img_src[350:950, 300:1700]
 #print(img_src.shape)
 img_mean = np.mean(img_src)
@@ -67,7 +72,7 @@ cv2.line(img_out, (x_min2, y_min2), (x_max2, y_min2), (0, 0, 255), 1)
 cv2.line(img_out, (x_min2, y_max2), (x_max2, y_max2), (0, 0, 255), 1)'''
 
 # train each contour 
-_, contours, _ = cv2.findContours(img_dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+contours, _ = cv2.findContours(img_dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 contours.sort(key=lambda x:get_contour_precedence(x, img_dst.shape[1]))
 
 idx = 0
@@ -75,11 +80,10 @@ num_str = []
 for contour in contours:
 	if cv2.contourArea(contour) > 2000:
 		[x, y, w, h] = cv2.boundingRect(contour)
-		# print('x:', x, ' y:', y, ' w:', w, ' h:', h)
 
-		if (h > 150) and w < 300:
+		if (x > 0) and (y > 0) and (h > 150) and (w < 300):
 			cv2.rectangle(img_out, (x, y), (x+w, y+h), (255, 255, 0), 2)
-			print('w:', w, ' h:', h)
+			print('x:', x, ' y:', y, ' w:', w, ' h:', h)
 			cv2.imshow('img_out', img_out)
 
 			img_roi = img_dst[y:y+h, x:x+w]
@@ -110,7 +114,8 @@ for i in num_str:
 # temp.reverse()
 temp_str = ''
 num_data = temp_str.join(temp)
-print('Resul:', num_data)
+print('Result:', num_data)
+get_reult()
 
 # SaveDirectory = os.getcwd()
 path = "D:\\OpenCV_Result"
