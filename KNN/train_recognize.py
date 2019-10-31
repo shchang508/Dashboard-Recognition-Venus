@@ -26,17 +26,17 @@ def trim(im):
 
 # sort contours
 def get_contour_precedence(contour, cols):
-    tolerance_factor = 10
+    # tolerance_factor = 10
     origin = cv2.boundingRect(contour)
-    return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
+    return cols + origin[0]
 
 # return result
 def get_reult():
     return num_data
 
 # train model
-samples = np.loadtxt('./KNN/samples.data', np.float32)
-responses = np.loadtxt('./KNN/responses.data', np.float32)
+samples = np.loadtxt('samples.data', np.float32)
+responses = np.loadtxt('responses.data', np.float32)
 print('Sample path:', os.path.abspath('./KNN/samples.data'))
 print('Respons path:', os.path.abspath('./KNN/response.data'))
 responses = responses.reshape((responses.size, 1))
@@ -45,8 +45,8 @@ model = cv2.ml.KNearest_create()
 model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 
 # read image
-img_src = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
-# img_src = cv2.imread('D:/Dashboard-Recognition-Venus/Schedule1_Original_20191018140458/cf-1_78.png', cv2.IMREAD_GRAYSCALE)
+# img_src = cv2.imread(sys.argv[1], cv2.IMREAD_GRAYSCALE)
+img_src = cv2.imread('D:/Dashboard-Recognition-Venus/SpeedPhoto_all/pic-20191015131920(1-29).png', cv2.IMREAD_GRAYSCALE)
 #img_src = img_src[350:950, 300:1700]
 #print(img_src.shape)
 img_mean = np.mean(img_src)
@@ -77,6 +77,7 @@ cv2.line(img_out, (x_min2, y_max2), (x_max2, y_max2), (0, 0, 255), 1)'''
 contours, _ = cv2.findContours(img_dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 contours.sort(key=lambda x:get_contour_precedence(x, img_dst.shape[1]))
 
+
 idx = 0
 num_str = []
 for contour in contours:
@@ -98,6 +99,7 @@ for contour in contours:
 			# recognize number
 			retval, results, neigh_resp, dists = model.findNearest(img_roi, k=1)
 			num = str(int((results[0][0])))
+			print('Num: ', num)
 			cv2.putText(img_out, num, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 			
 			cv2.imshow('img_out', img_out)
